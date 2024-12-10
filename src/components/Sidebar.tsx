@@ -1,33 +1,16 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import PersonCard from "./PersonCard"
 import { PersonModal } from "./Modals"
+import { getPeople } from "../services/apiService"
 
 interface Person{
     id: number
     image: string;
     name: string;
 }
-
-interface SidebarProps{
-    listaPrueba: Person[]
-}
-
-const nahuel = {
-    id: 1,
-    image: "a",
-    name: "Nahuel Montero"
-}
-
-const polola = {
-    id: 2,
-    image: "a",
-    name: "Polola Pololil"
-}
-
-const listaPlaceholder = [nahuel, polola]
-
 export default function Sidebar() {
-    const [people, setPeople] = useState<Person[]>(listaPlaceholder);
+    const [people, setPeople] = useState<Person[]>([]);
+    const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [personToEdit, setPersonToEdit] = useState<Person | null>(null)
 
@@ -58,9 +41,28 @@ export default function Sidebar() {
         setPeople((prevPeople) => prevPeople.filter((person) => person.id !== id));
     }
 
+    useEffect(() => {
+        const fetchPeople = async () => {
+            try{
+                const data = await getPeople();
+                setPeople(data)
+            } catch (err: any){
+                console.log("Error al cargar los datos");
+                console.log(err)
+            } finally{
+                setLoading(false)
+            }
+        }
+
+        fetchPeople();
+    }, [])
+
+    if(loading) return <p>Cargando... </p>
+
     return (
         <div className="sidebar">
             <h2>Lista de personas</h2>
+
             <ul>
                 {people.map(person => (
                     <li key={person.id}>
@@ -74,6 +76,7 @@ export default function Sidebar() {
             <button className="new-guest-button" onClick={addPerson}>
                 Agregar nuevo
             </button>
+
 
             {isModalOpen && (
                 <PersonModal
