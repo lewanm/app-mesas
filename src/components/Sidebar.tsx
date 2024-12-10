@@ -1,5 +1,6 @@
 import { useState } from "react"
 import PersonCard from "./PersonCard"
+import { AddPersonModal } from "./Modals"
 
 function addPerson(){
     console.log("add person")
@@ -16,7 +17,16 @@ interface SidebarProps{
 }
 
 export default function Sidebar({listaPrueba}:SidebarProps) {
-    const [people, setPeople] = useState<Person[]>(listaPrueba)
+    const [people, setPeople] = useState<Person[]>(listaPrueba);
+    const [isModalOpen, setIsModalOpen] = useState(false)
+
+    const addPerson = () => {
+        setIsModalOpen(true);
+      };
+
+    const savePerson = (newPerson: Person) => {
+        setPeople((prevPeople) => [...prevPeople, newPerson])
+    }
 
     return (
         <div className="sidebar">
@@ -31,6 +41,13 @@ export default function Sidebar({listaPrueba}:SidebarProps) {
             <button className="new-guest-button" onClick={addPerson}>
                 Agregar nuevo
             </button>
+
+            {isModalOpen && (
+                <AddPersonModal
+                    onClose={() => setIsModalOpen(false)}
+                    onSave={savePerson}
+                />
+            )}
         </div>
     )
     
