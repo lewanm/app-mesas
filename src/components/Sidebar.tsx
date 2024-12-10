@@ -1,10 +1,6 @@
 import { useState } from "react"
 import PersonCard from "./PersonCard"
-import { AddPersonModal } from "./Modals"
-
-function addPerson(){
-    console.log("add person")
-}
+import { PersonModal } from "./Modals"
 
 interface Person{
     id: number
@@ -16,16 +12,50 @@ interface SidebarProps{
     listaPrueba: Person[]
 }
 
-export default function Sidebar({listaPrueba}:SidebarProps) {
-    const [people, setPeople] = useState<Person[]>(listaPrueba);
+const nahuel = {
+    id: 1,
+    image: "a",
+    name: "Nahuel Montero"
+}
+
+const polola = {
+    id: 2,
+    image: "a",
+    name: "Polola Pololil"
+}
+
+const listaPlaceholder = [nahuel, polola]
+
+export default function Sidebar() {
+    const [people, setPeople] = useState<Person[]>(listaPlaceholder);
     const [isModalOpen, setIsModalOpen] = useState(false)
+    const [personToEdit, setPersonToEdit] = useState<Person | null>(null)
 
     const addPerson = () => {
+        setPersonToEdit(null);
         setIsModalOpen(true);
       };
 
-    const savePerson = (newPerson: Person) => {
-        setPeople((prevPeople) => [...prevPeople, newPerson])
+    const openEditModal = (person: Person) => {
+        setPersonToEdit(person);
+        setIsModalOpen(true);
+    }
+
+    const savePerson = (person: Person) => {
+        setPeople((prevPeople) =>{
+            const personIndex = prevPeople.findIndex((p) => p.id === person.id);
+            if (personIndex !== -1){
+                const newPeople = [...prevPeople];
+                newPeople[personIndex] = person;
+                return newPeople;
+            }
+            return [...prevPeople, person];
+        });
+    }
+
+    const deletePerson = (id: number) => {
+        //esto es por ahora, solo filtro la lista que no tiene el ID, despues con el crud lo modifico.
+        setPeople((prevPeople) => prevPeople.filter((person) => person.id !== id));
     }
 
     return (
@@ -34,7 +64,10 @@ export default function Sidebar({listaPrueba}:SidebarProps) {
             <ul>
                 {people.map(person => (
                     <li key={person.id}>
-                        <PersonCard personName={person.name}/>
+                        <PersonCard 
+                            personName={person.name}
+                            onEdit={() => openEditModal(person)}
+                            onDelete={() => deletePerson(person.id)}/>
                     </li>
                 ))}
             </ul>
@@ -43,7 +76,8 @@ export default function Sidebar({listaPrueba}:SidebarProps) {
             </button>
 
             {isModalOpen && (
-                <AddPersonModal
+                <PersonModal
+                    personToEdit={personToEdit || undefined}
                     onClose={() => setIsModalOpen(false)}
                     onSave={savePerson}
                 />
