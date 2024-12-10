@@ -1,5 +1,4 @@
 import React from "react"
-import { PersonModal } from "./Modals";
 
 interface PersonCardProps{
     personName: string;
@@ -14,7 +13,6 @@ export default function PersonCard({ personName, onEdit, onDelete }:PersonCardPr
             <p>{personName}</p>
             <button onClick={onEdit}>Editar</button>
             <button onClick={onDelete}>Eliminar</button>
-            {}
         </div>
     )
 }
